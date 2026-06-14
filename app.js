@@ -11,6 +11,24 @@ const app = express();
 //     next();
 // });
 
+const checkToken = (req,res,next) => {
+    let {token} = req.query;
+    if(token === "giveaccess"){
+     next();
+    }
+    throw new Error("ACCESS DENIED!");
+};
+
+
+app.get("/api", checkToken, (req,res) => {
+    res.send("data");
+});
+
+app.use("/random", (req,res,next) => {
+    console.log("I'm only for random");
+    next();
+})
+
 app.use((req,res,next) => {
     req.time = new Date(Date.now()).toString();
     console.log(req.method, req.pathname, req.hostname, req.time);
@@ -24,6 +42,12 @@ app.get("/", (req,res) => {
 app.get("/random", (req,res) => {
     res.send("this is a random page");  
 });
+
+//404
+app.use((req,res) => {
+    res.status(404).send("Page Not Found");
+
+})
 
 app.listen(8080, () => {
     console.log("Server is listening on port 8080");
